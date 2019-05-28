@@ -5,6 +5,7 @@
 ** main.cpp
 */
 
+#include <boost/multi_array.hpp>
 #include <irrlicht/irrlicht.h>
 
 using namespace irr;
@@ -42,6 +43,7 @@ private:
 int main(void)
 {
     MyEventReceiver receiver;
+    boost::multi_array<double, 3> array_type(boost::extents[3][4][2]);
 
     //open a window
     IrrlichtDevice *device = createDevice(video::EDT_SOFTWARE, core::dimension2d<u32>(640, 480), 16, false, false, false, &receiver);

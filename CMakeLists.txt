@@ -7,8 +7,8 @@ enable_testing()
 
 # sources et include
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "include/*.hpp")
-include_directories(include)
 
+# Set 
 if(MSVC)
 	# Force to always compile with W4
 	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -21,19 +21,28 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall")
 endif()
 
-# flags de compilation
-#set(CMAKE_CXX_FLAGS "-Wall")
-
 # set the cmake module path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+# set the boost options
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF) 
+
 # Trouver un package avec find_package
 find_package("Irrlicht")
-if (Irrlicht_FOUND)
-    # executable
-    add_executable(bomberman ${SOURCE_FILES})
-    include_directories(${Irrlicht_INCLUDE_DIRS})
-    target_link_libraries(bomberman ${Irrlicht_LIBRARIES})
+find_package(Boost 1.66.0) 
+
+if (Irrlicht_FOUND AND Boost_FOUND)
+
+	# executable
+	include_directories(${Boost_INCLUDE_DIRS}) 
+	include_directories(${Irrlicht_INCLUDE_DIRS})
+	include_directories(include)
+
+	add_executable(bomberman ${SOURCE_FILES})
+	target_link_libraries(bomberman ${Irrlicht_LIBRARIES})
+	target_link_libraries(bomberman ${Boost_LIBRARIES})
 else()
     message(FATAL_ERROR "Librairy not found")
 endif()
