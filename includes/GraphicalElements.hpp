@@ -27,6 +27,10 @@ private:
     irr::core::vector3df _position;
     irr::core::vector3df _rotation;
     bool _collide;
+    irr::scene::ITriangleSelector *_selector;
+    irr::scene::IMetaTriangleSelector *_wordl;
+
+    bool createSelectorWorld(irr::scene::ISceneManager* smgr);
 
 public:
 
@@ -36,6 +40,8 @@ public:
     typedef enum meshType_e meshType_t;
 
 public:
+    static irr::scene::IMetaTriangleSelector *_allSelectors;
+
     GraphicalElements(const irr::core::vector3df &position = irr::core::vector3df(0, 0, 0), const irr::core::vector3df &rotation = irr::core::vector3df(0, 0, 0), irr::f32 scale = 1, bool collide = true);
 
     const irr::core::vector3df &getRotation() const;
@@ -56,6 +62,9 @@ public:
 
     const irr::core::vector3df& getPosition();
     void setPosition(irr::core::vector3df& _position);
+
+    void addColision(irr::scene::ISceneManager* smgr);
+
 };
 
 #endif

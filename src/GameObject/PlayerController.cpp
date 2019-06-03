@@ -88,6 +88,7 @@ void PlayerController::move(irr::EKEY_ACTION action, irr::u16 speed)
     irr::core::vector3df position = _displayInfo.getPosition();
     irr::s16 offset = 1;
 
+    std::cout << position.X << " " << position.Y << " " << position.Z << std::endl;
     switch (action)
     {
     case irr::EKA_MOVE_BACKWARD:
@@ -108,5 +109,6 @@ void PlayerController::move(irr::EKEY_ACTION action, irr::u16 speed)
     default:
         return;
     }
+    std::cout << position.X << " " << position.Y << " " << position.Z << std::endl;
     _displayInfo.setPosition(position);
 }

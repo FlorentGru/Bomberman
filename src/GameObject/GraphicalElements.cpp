@@ -5,6 +5,7 @@
 ** GraphicalElements.cpp
 */
 
+#include <iostream>
 #include "GraphicalElements.hpp"
 
 GraphicalElements::GraphicalElements(const irr::core::vector3df &position, const irr::core::vector3df &rotation, irr::f32 scale, bool collide) :
@@ -13,7 +14,9 @@ GraphicalElements::GraphicalElements(const irr::core::vector3df &position, const
                                     _scale(scale),
                                     _position(position),
                                     _rotation(rotation),
-                                    _collide(collide)
+                                    _collide(collide),
+                                    _selector(nullptr),
+                                    _wordl(nullptr)
 {}
 
 const irr::core::vector3df &GraphicalElements::getRotation() const
@@ -54,6 +57,8 @@ void GraphicalElements::setMesh(irr::scene::ISceneManager* smgr, irr::video::IVi
         for (irr::u16 i = 0; i < texture.size(); i++)
             _node->setMaterialTexture(i, driver->getTexture(texture[i].data()));
         _node->setPosition(irr::core::vector3df(_position.X, _position.Y, 0));
+        _node->setRotation(_rotation);
+        addColision(smgr);
     }
 }
 
@@ -68,6 +73,8 @@ void GraphicalElements::setMesh(irr::scene::ISceneManager* smgr, irr::video::IVi
             _node->setMD2Animation(irr::scene::EMAT_STAND);
             _node->setMaterialTexture(0, driver->getTexture(texture.data()));
             _node->setPosition(irr::core::vector3df(_position.X, _position.Y, 0));
+            _node->setRotation(_rotation);
+            addColision(smgr);
         }
     }
 }
@@ -98,6 +105,8 @@ void GraphicalElements::setScale(irr::f32 scale)
 
 const irr::core::vector3df& GraphicalElements::getPosition()
 {
+    if (_node)
+        return (_node->getPosition());
     return (_position);
 }
 
@@ -107,3 +116,51 @@ void GraphicalElements::setPosition(irr::core::vector3df& position)
     if (_node)
         _node->setPosition(position);
 }
+
+void GraphicalElements::addColision(irr::scene::ISceneManager* smgr)
+{
+    irr::core::vector3df sizeColision;
+
+    if (!_node || !smgr || !_allSelectors) {
+        return;
+    }
+    createSelectorWorld(smgr);
+    _selector = smgr->createTriangleSelector(_node);
+    _node->setTriangleSelector(_selector);
+    _allSelectors->addTriangleSelector(_selector);
+    
+    irr::scene::ISceneNodeAnimator* anim = smgr->createCollisionResponseAnimator(
+			_wordl, _node, irr::core::vector3df(8,8,8),
+			irr::core::vector3df(0, 0, 0), irr::core::vector3df(0,0,0));
+	_node->addAnimator(anim);
+	anim->drop();  // And 
+}
+
+bool GraphicalElements::createSelectorWorld(irr::scene::ISceneManager* smgr)
+{
+    irr::u32 size = 0;
+
+    if (smgr == nullptr || _allSelectors == nullptr)
+        return (false);
+    _wordl = smgr->createMetaTriangleSelector();
+    if (_wordl == nullptr)
+        return (false);
+    size = _allSelectors->getSelectorCount();
+    for (irr::u32 i = 0; i < size; i++) {
+        _wordl->addTriangleSelector(_allSelectors->getSelector(i));
+    }
+    return (true);
+}
+
+//TODO to improve the colisions
+/*
+    Les colisions ne doivent pas avoir le triangle selector de l'object lui meme
+    Lorsqu'on crée un nouvel object, il faudrait "update" les colisions des autres
+    gameObject qui possèdent de quoi faire une colision
+    -> utilité du bool CanCollide qui optimise l'update
+
+
+    de plus la position des cubes de cléments ne sont pas a la bonne position
+
+    -> probleme venant du mesh en lui meme qui a une origine à l'exterieure de son cube
+*/
